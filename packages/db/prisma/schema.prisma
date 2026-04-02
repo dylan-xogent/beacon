@@ -1,0 +1,101 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Guild {
+  id          String   @id
+  name        String
+  iconUrl     String?
+  memberCount Int      @default(0)
+  installedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  channels          Channel[]
+  memberEvents      MemberEvent[]
+  messageEvents     MessageEvent[]
+  voiceEvents       VoiceEvent[]
+  memberSnapshots   MemberSnapshot[]
+  feedSubscriptions FeedSubscription[]
+}
+
+model Channel {
+  id      String @id
+  guildId String
+  name    String
+  type    Int
+
+  guild         Guild          @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  messageEvents MessageEvent[]
+}
+
+model MemberEvent {
+  id        Int      @id @default(autoincrement())
+  guildId   String
+  userId    String
+  type      String // JOIN | LEAVE
+  timestamp DateTime @default(now())
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@index([guildId, timestamp])
+}
+
+model MessageEvent {
+  id        Int      @id @default(autoincrement())
+  guildId   String
+  channelId String
+  userId    String
+  timestamp DateTime @default(now())
+
+  guild   Guild   @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@index([guildId, timestamp])
+  @@index([channelId, timestamp])
+}
+
+model VoiceEvent {
+  id        Int      @id @default(autoincrement())
+  guildId   String
+  userId    String
+  channelId String
+  type      String // JOIN | LEAVE
+  timestamp DateTime @default(now())
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@index([guildId, timestamp])
+}
+
+model MemberSnapshot {
+  id          Int      @id @default(autoincrement())
+  guildId     String
+  memberCount Int
+  timestamp   DateTime @default(now())
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@index([guildId, timestamp])
+}
+
+model FeedSubscription {
+  id            String    @id @default(cuid())
+  guildId       String
+  channelId     String
+  type          String // YOUTUBE | TWITCH | REDDIT | RSS
+  sourceId      String // channel ID, username, subreddit name, or URL
+  displayName   String?
+  lastCheckedAt DateTime?
+  lastItemId    String?
+  createdAt     DateTime  @default(now())
+  active        Boolean   @default(true)
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@index([type, active, lastCheckedAt])
+}

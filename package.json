@@ -1,0 +1,27 @@
+{
+  "name": "beacon",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:bot": "pnpm --filter @beacon/bot dev",
+    "dev:web": "pnpm --filter @beacon/web dev",
+    "build": "pnpm --filter @beacon/db build && pnpm --filter @beacon/bot build && pnpm --filter @beacon/web build",
+    "db:generate": "pnpm --filter @beacon/db db:generate",
+    "db:migrate": "pnpm --filter @beacon/db db:migrate",
+    "db:push": "pnpm --filter @beacon/db db:push",
+    "db:studio": "pnpm --filter @beacon/db db:studio",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
