@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: beacon
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-beacon_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: beacon
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://beacon:${POSTGRES_PASSWORD:-beacon_password}@postgres:5432/beacon
+      DATABASE_URL: postgresql://beacon:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/beacon
       REDIS_URL: redis://redis:6379
     depends_on:
       postgres:
@@ -52,7 +52,7 @@ services:
       - "3000:3000"
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://beacon:${POSTGRES_PASSWORD:-beacon_password}@postgres:5432/beacon
+      DATABASE_URL: postgresql://beacon:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/beacon
     depends_on:
       postgres:
         condition: service_healthy

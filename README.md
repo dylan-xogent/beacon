@@ -74,6 +74,7 @@ Open `.env` and fill in your values:
 
 | Variable | Where to get it |
 |----------|----------------|
+| `POSTGRES_PASSWORD` | Choose a strong password (`openssl rand -base64 24`) |
 | `DISCORD_TOKEN` | Discord Developer Portal → Your App → Bot → Token |
 | `DISCORD_CLIENT_ID` | Discord Developer Portal → Your App → General Information → Application ID |
 | `DISCORD_CLIENT_SECRET` | Discord Developer Portal → Your App → OAuth2 → Client Secret |

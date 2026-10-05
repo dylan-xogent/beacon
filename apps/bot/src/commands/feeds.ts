@@ -5,6 +5,7 @@ import {
   PermissionFlagsBits,
   ChannelType,
 } from "discord.js";
+import { assertPublicHttpUrl } from "../lib/safeUrl";
 import { prisma } from "@beacon/db";
 
 const FEED_TYPE_LABELS: Record<string, string> = {
@@ -149,11 +150,15 @@ async function handleAdd(interaction: ChatInputCommandInteraction): Promise<void
   }
 
   // Basic source validation
-  if (type === "RSS" && !sourceId.startsWith("http")) {
-    await interaction.editReply({
-      content: "For RSS feeds, please provide a full URL starting with http:// or https://",
-    });
-    return;
+  if (type === "RSS") {
+    try {
+      await assertPublicHttpUrl(sourceId);
+    } catch {
+      await interaction.editReply({
+        content: "For RSS feeds, please provide a public URL starting with http:// or https://",
+      });
+      return;
+    }
   }
 
   // Limit per guild

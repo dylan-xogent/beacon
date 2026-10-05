@@ -1,4 +1,5 @@
 import Parser from "rss-parser";
+import { assertPublicHttpUrl } from "../safeUrl";
 
 export interface RssItem {
   id: string; // guid or link
@@ -25,6 +26,7 @@ export async function fetchLatestRssItem(
   feedUrl: string,
   lastItemId: string | null
 ): Promise<RssItem | null> {
+  await assertPublicHttpUrl(feedUrl);
   const feed = await rssParser.parseURL(feedUrl);
 
   if (!feed.items || feed.items.length === 0) return null;

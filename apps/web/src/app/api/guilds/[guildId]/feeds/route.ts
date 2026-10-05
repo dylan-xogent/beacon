@@ -3,6 +3,25 @@ import { auth } from "@/lib/auth";
 import { requireGuildManage } from "@/lib/discord-api";
 import { prisma } from "@beacon/db";
 
+
+function isPublicHttpUrl(value: string): boolean {
+  try {
+    const u = new URL(value);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+    const h = u.hostname.toLowerCase();
+    if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".internal") || h.endsWith(".local")) return false;
+    if (/^\[?(::1?|f[cd][0-9a-f]{2}:|fe[89ab][0-9a-f]:)/.test(h)) return false;
+    const m = h.match(/^(\d+)\.(\d+)\.\d+\.\d+$/);
+    if (m) {
+      const a = Number(m[1]), b = Number(m[2]);
+      if (a === 0 || a === 10 || a === 127 || a >= 224 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127)) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 interface Params {
   params: { guildId: string };
 }
@@ -90,9 +109,9 @@ export async function POST(
     );
   }
 
-  if (type === "RSS" && !sourceId.startsWith("http")) {
+  if (type === "RSS" && !isPublicHttpUrl(sourceId)) {
     return NextResponse.json(
-      { error: "RSS source must be a valid URL starting with http:// or https://" },
+      { error: "RSS source must be a public http:// or https:// URL" },
       { status: 400 }
     );
   }
